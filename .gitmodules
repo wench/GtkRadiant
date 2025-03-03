@@ -1,0 +1,3 @@
+[submodule "bspc"]
+	path = bspc
+	url = https://github.com/wench/bspc.git
