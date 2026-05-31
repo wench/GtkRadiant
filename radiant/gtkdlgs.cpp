@@ -258,7 +258,7 @@ static void project_remove( GtkWidget *widget, gpointer data ){
 	if ( gtk_tree_selection_get_selected( selection, &model, &iter ) ) {
 		char* key;
 		gtk_tree_model_get( model, &iter, 0, &key, -1 );
-		DeleteKey( g_qeglobals.d_project_entity, key );
+		EntityDeleteKey( g_qeglobals.d_project_entity, key );
 		g_free( key );
 
 		char* index = gtk_tree_model_get_string_from_iter( model, &iter );
@@ -843,7 +843,7 @@ void DoProjectSettings(){
 			isBasegame = qtrue;
 		}
 		if( isBasegame ) {
-			DeleteKey( g_qeglobals.d_project_entity, "gamename" );
+			EntityDeleteKey( g_qeglobals.d_project_entity, "gamename" );
 		} else {
 			SetKeyValue( g_qeglobals.d_project_entity, "gamename", new_fs_game );
 		}

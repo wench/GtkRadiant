@@ -96,7 +96,7 @@ struct _QEREntityTable
 #define Entity_Free __ENTITYTABLENAME.m_pfnEntity_Free
 #define Entity_Clone __ENTITYTABLENAME.m_pfnEntity_Clone
 #define SetKeyValue __ENTITYTABLENAME.m_pfnSetKeyValue
-#define DeleteKey __ENTITYTABLENAME.m_pfnDeleteKey
+#define EntityDeleteKey __ENTITYTABLENAME.m_pfnDeleteKey
 #define ValueForKey __ENTITYTABLENAME.m_pfnValueForKey
 #define FloatForKey __ENTITYTABLENAME.m_pfnFloatForKey
 #define IntForKey __ENTITYTABLENAME.m_pfnIntForKey
