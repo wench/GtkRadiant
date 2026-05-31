@@ -332,7 +332,7 @@ static void GetTexdefInfo_from_Radiant(){
 	IsFaceConflicting();
 	PopulateTextureComboList();
 	if ( texdef_face_list_empty() ) {
-		set_surface_flags_button_state( get_texdef_face_list(), TRUE );
+		set_surface_flags_button_state( nullptr, TRUE );
 	}
 	else{
 		set_surface_flags_button_state( get_texdef_face_list(), FALSE );
