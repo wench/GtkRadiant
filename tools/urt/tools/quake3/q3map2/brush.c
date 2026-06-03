@@ -91,14 +91,14 @@ int CountBrushList( brush_t *brushes ){
 
 brush_t *AllocBrush( int numSides ){
 	brush_t     *bb;
-	int c;
+	size_t c;
 
 
 	/* allocate and clear */
 	if ( numSides <= 0 ) {
 		Error( "AllocBrush called with numsides = %d", numSides );
 	}
-	c = (int) &( ( (brush_t*) 0 )->sides[ numSides ] );
+	c = (size_t) &( ( (brush_t*) 0 )->sides[ numSides ] );
 	bb = safe_malloc( c );
 	memset( bb, 0, c );
 	if ( numthreads == 1 ) {
@@ -133,7 +133,7 @@ void FreeBrush( brush_t *b ){
 		}
 
 	/* ydnar: overwrite it */
-	memset( b, 0xFE, (int) &( ( (brush_t*) 0 )->sides[ b->numsides ] ) );
+	memset( b, 0xFE, (size_t) &( ( (brush_t*) 0 )->sides[ b->numsides ] ) );
 	*( (unsigned int*) b ) = 0xFEFEFEFE;
 
 	/* free it */
@@ -171,12 +171,12 @@ void FreeBrushList( brush_t *brushes ){
 
 brush_t *CopyBrush( brush_t *brush ){
 	brush_t     *newBrush;
-	int size;
+	size_t size;
 	int i;
 
 
 	/* copy brush */
-	size = (int) &( ( (brush_t*) 0 )->sides[ brush->numsides ] );
+	size = (size_t) &( ( (brush_t*) 0 )->sides[ brush->numsides ] );
 	newBrush = AllocBrush( brush->numsides );
 	memcpy( newBrush, brush, size );
 

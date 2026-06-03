@@ -59,13 +59,13 @@ void PlaneFromWinding( fixedWinding_t *w, visPlane_t *plane ){
 
 fixedWinding_t *NewFixedWinding( int points ){
 	fixedWinding_t  *w;
-	int size;
+	size_t size;
 
 	if ( points > MAX_POINTS_ON_WINDING ) {
 		Error( "NewWinding: %i points", points );
 	}
 
-	size = (int)( (fixedWinding_t *)0 )->points[points];
+	size = (size_t)( (fixedWinding_t *)0 )->points[points];
 	w = safe_malloc( size );
 	memset( w, 0, size );
 

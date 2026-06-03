@@ -3483,9 +3483,9 @@ void DoTextEditor( const char* filename, int cursorpos ){
 		HINSTANCE result;
 		Sys_Printf( "Opening file '%s'.\n", filename );
 		result = ShellExecute( (HWND)GDK_WINDOW_HWND( gtk_widget_get_window( g_pParentWnd->m_pWidget ) ), "open", filename, NULL, NULL, SW_SHOW );
-		if( (int)result <= 32 ) {
+		if( (uintptr_t)result <= 32 ) {
 			const char *errstr;
-			switch( (int)result ) {
+			switch( (uintptr_t)result ) {
 				case SE_ERR_OOM:
 				case 0:
 					errstr = _( "The operating system is out of memory or resources." );
