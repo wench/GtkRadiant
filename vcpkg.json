@@ -1,0 +1,8 @@
+{
+  "dependencies": [
+    "libxml2",
+    "libjpeg-turbo",
+    "libpng",
+    "zlib"
+  ]
+}

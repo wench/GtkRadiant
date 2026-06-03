@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <INCLUDE_DIRS>$(GTKGL_INCLUDES);$(SolutionDir)$(VCPKG_INSTALLED)\include\libxml2;$(SolutionDir)\include;$(SolutionDir)\libs</INCLUDE_DIRS>
+  </PropertyGroup>
+  <PropertyGroup>
+    <CopyFileAfterTargets>
+    </CopyFileAfterTargets>
+    <CopyFileBeforeTargets />
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)libs;$(GTKGL_INCLUDES);$(SolutionDir)$(VCPKG_INSTALLED_DIR)include\libxml2</AdditionalIncludeDirectories>
+      <TreatSpecificWarningsAsErrors>4311;4312</TreatSpecificWarningsAsErrors>
+      <DisableSpecificWarnings>4101</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(GDK_LIBS);$(SolutionDir)\build\$(Configuration)\$(PlatformShortname)\libs;$(SolutionDir)$(VCPKG_INSTALLED_LIBSBIN)lib</AdditionalLibraryDirectories>
+    </Link>
+    <CopyFileToFolders />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="INCLUDE_DIRS">
+      <Value>$(INCLUDE_DIRS)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
