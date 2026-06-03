@@ -674,20 +674,11 @@ GtkWidget* new_image_icon( const char* filename ) {
 }
 
 GtkWidget* new_plugin_image_icon( const char* filename ) {
-	CString str;
 	GdkPixbuf *pixbuf;
 	GtkWidget *icon;
-	GError *gerror = NULL;
-
-	str = g_strAppPath;
-	str += g_strModulesDir;
-	str += "bitmaps/";
-	str += filename;
-
-	pixbuf = gdk_pixbuf_new_from_file( str.GetBuffer(), &gerror );
-	if( pixbuf == NULL ) {
-		Sys_FPrintf( SYS_ERR, "ERROR: Failed to load plugin bitmap: %s, %s\n", str.GetBuffer(), gerror->message );
-		g_error_free( gerror );
+	
+	if (!load_plugin_bitmap(filename, (void**)&pixbuf, nullptr)) {
+		Sys_FPrintf( SYS_ERR, "ERROR: Failed to load plugin bitmap: %s\n", filename);
 	}
 	//manually add transparency to bmp files
 	if( strlen( filename ) > 4 && strcmp( filename + strlen( filename ) - 4, ".bmp" ) == 0 && pixbuf && !gdk_pixbuf_get_has_alpha( pixbuf ) ) {
