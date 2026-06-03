@@ -1529,10 +1529,10 @@ static void treeSelection( GtkTreeSelection* selection, gpointer data ){
 
 	GtkTreeModel* model;
 	GtkTreeIter selected;
-	if ( gtk_tree_selection_get_selected( selection, &model, &selected ) ) {
+	if ( gtk_tree_selection_get_selected( selection, &model, &selected ) ) {		
 		int prefpage;
-		gtk_tree_model_get( model, &selected, 1, (gpointer*)&prefpage, -1 );
-		dlg->showPrefPage( prefpage );
+		gtk_tree_model_get( model, &selected, 1, &prefpage, -1);
+		dlg->showPrefPage(prefpage); 
 	}
 }
 
@@ -1615,7 +1615,7 @@ void PrefsDlg::BuildDialog(){
 	gtk_scrolled_window_set_shadow_type( GTK_SCROLLED_WINDOW( sc_win ), GTK_SHADOW_IN );
 
 	{
-		GtkTreeStore* store = gtk_tree_store_new( 2, G_TYPE_STRING, G_TYPE_POINTER );
+		GtkTreeStore* store = gtk_tree_store_new( 2, G_TYPE_STRING, G_TYPE_INT);
 
 		GtkWidget* view = gtk_tree_view_new_with_model( GTK_TREE_MODEL( store ) );
 		gtk_tree_view_set_headers_visible( GTK_TREE_VIEW( view ), FALSE );
@@ -1646,7 +1646,7 @@ void PrefsDlg::BuildDialog(){
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Game settings" ), 1, (gpointer)PTAB_GAME_SETTINGS, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Game settings" ), 1, PTAB_GAME_SETTINGS, -1 );
 				}
 			}
 
@@ -1657,17 +1657,17 @@ void PrefsDlg::BuildDialog(){
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "2D Display/Rendering" ), 1, (gpointer)PTAB_2D, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "2D Display/Rendering" ), 1, PTAB_2D, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "3D View" ), 1, (gpointer)PTAB_CAMERA, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "3D View" ), 1, PTAB_CAMERA, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Texture Settings" ), 1, (gpointer)PTAB_TEXTURE, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Texture Settings" ), 1, PTAB_TEXTURE, -1 );
 				}
 			}
 
@@ -1678,17 +1678,17 @@ void PrefsDlg::BuildDialog(){
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Layout" ), 1, (gpointer)PTAB_LAYOUT, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Layout" ), 1, PTAB_LAYOUT, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Mouse" ), 1, (gpointer)PTAB_MOUSE, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Mouse" ), 1, PTAB_MOUSE, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Editing" ), 1, (gpointer)PTAB_EDITING, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Editing" ), 1, PTAB_EDITING, -1 );
 				}
 			}
 
@@ -1699,27 +1699,27 @@ void PrefsDlg::BuildDialog(){
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Startup/Auto save" ), 1, (gpointer)PTAB_STARTUP, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Startup/Auto save" ), 1, PTAB_STARTUP, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Paths" ), 1, (gpointer)PTAB_PATHS, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Paths" ), 1, PTAB_PATHS, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Brush" ), 1, (gpointer)PTAB_BRUSH, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Brush" ), 1, PTAB_BRUSH, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Misc" ), 1, (gpointer)PTAB_MISC, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Misc" ), 1, PTAB_MISC, -1 );
 				}
 				if ( !g_qeglobals.bBSPFrontendPlugin ) {
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "BSP Monitoring" ), 1, (gpointer)PTAB_BSPMONITOR, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "BSP Monitoring" ), 1, PTAB_BSPMONITOR, -1 );
 				}
 			}
 		}
