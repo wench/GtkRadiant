@@ -190,10 +190,10 @@ void GetSpawnFlags( void ){
 			brush_t   *b;
 
 			for ( b = selected_brushes.next ; b != &selected_brushes ; b = b->next )
-				DeleteKey( b->owner, "spawnflags" );
+				EntityDeleteKey( b->owner, "spawnflags" );
 		}
 		else{
-			DeleteKey( edit_entity, "spawnflags" );
+			EntityDeleteKey( edit_entity, "spawnflags" );
 		}
 	}
 	else
@@ -498,10 +498,10 @@ void DelProp( void ){
 		brush_t *b;
 
 		for ( b = selected_brushes.next ; b != &selected_brushes ; b = b->next )
-			DeleteKey( b->owner, key );
+			EntityDeleteKey( b->owner, key );
 	}
 	else{
-		DeleteKey( edit_entity, key );
+		EntityDeleteKey( edit_entity, key );
 	}
 
 	// refresh the prop listbox
@@ -523,7 +523,7 @@ void ResetEntity(){
 			for ( pep = b->owner->epairs; pep; )
 			{
 				if ( strcmp( pep->key, "classname" ) != 0 ) {
-					DeleteKey( b->owner, pep->key );
+					EntityDeleteKey( b->owner, pep->key );
 					pep = b->owner->epairs;
 				}
 				else{
@@ -535,7 +535,7 @@ void ResetEntity(){
 		for ( pep = edit_entity->epairs; pep; )
 		{
 			if ( strcmp( pep->key, "classname" ) != 0 ) {
-				DeleteKey( edit_entity, pep->key );
+				EntityDeleteKey( edit_entity, pep->key );
 				pep = edit_entity->epairs;
 			}
 			else{
@@ -808,7 +808,7 @@ void Group_RemoveBrush( brush_t *b ){
 	   gtk_ctree_remove_node (GTK_CTREE (g_pGroupDlg->m_pTree), b->itemOwner);
 	   b->itemOwner = NULL;
 	   }
-	   DeleteKey(b->epairs, "group");
+	   EntityDeleteKey(b->epairs, "group");
 	 */
 }
 /*
@@ -971,7 +971,7 @@ void Group_Init(){
 
    while (array)
    {
-    DeleteKey(world_entity, (char*)array->data);
+    EntityDeleteKey(world_entity, (char*)array->data);
     g_free (array->data);
     array = g_slist_remove (array, array->data);
    }
