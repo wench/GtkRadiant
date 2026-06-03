@@ -1,3 +1,9 @@
 [submodule "bspc"]
 	path = bspc
 	url = https://github.com/wench/bspc.git
+	ignore = dirty
+
+[submodule "GTK-MSVC"]
+	path = GTK-MSVC
+	url = https://github.com/wench/GTK-MSVC.git
+	ignore = dirty
