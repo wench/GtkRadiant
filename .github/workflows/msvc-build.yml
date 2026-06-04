@@ -1,0 +1,163 @@
+name: msvc-build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "**"
+  pull_request:
+    paths:
+      - "**"
+
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: 
+
+  BUILD_PLATFORMS: x64 x86
+
+  BUILD_CONFIGURATIONS: Release Debug
+
+  VCPKGCACHE_PATH: vcpkg-caches
+  
+  TARGET_VCPKG_MANIFEST_INSTALL: VcpkgInstallManifestDependencies
+
+
+  #Set vcpkg to use an asset cache
+  X_VCPKG_ASSET_SOURCES: ${{format('clear;x-azurl,file://{0}\vcpkg-caches\asset,,readwrite', github.workspace) }}
+
+  VCPKG_BINARY_SOURCE: ${{format('clear;files,{0}\vcpkg-caches\binary,readwrite', github.workspace) }}
+
+  VCPKG_DEFAULT_BINARY_CACHE: ${{format('{0}\vcpkg-caches\binary', github.workspace) }}
+
+  VCPKG_REV:
+
+  VCPKG_CACHE_HASH:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.runner }}
+ 
+
+    strategy:
+      max-parallel: 1 # force them to run sequentially
+      fail-fast: true
+      matrix:
+        runner: [windows-2022, windows-11-arm]    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+       submodules: recursive
+    
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v3
+
+    - name: Setup VCPKG
+      working-directory: ${{env.GITHUB_WORKSPACE}}     
+      run: |
+        $vcpkgcfg_json = Get-Content vcpkg-configuration.json -Raw | ConvertFrom-Json
+        mkdir $Env:VCPKGCACHE_PATH
+        chdir $Env:VCPKGCACHE_PATH
+        mkdir asset
+        mkdir binary        
+        cd $Env:VCPKG_INSTALLATION_ROOT
+        git fetch
+        git checkout -f --detach $vcpkgcfg_json.'default-registry'.baseline
+        .\bootstrap-vcpkg.bat
+        ./vcpkg integrate install
+        ('VCPKG_REV='+$vcpkgcfg_json.'default-registry'.baseline)|Out-File -Append  ${{ github.env }}
+
+
+    - name: Restore VCPKG Cache
+      uses: actions/cache/restore@v5
+      id: vcpkg-cache-restore
+      with:
+        path: ${{env.VCPKGCACHE_PATH}}
+        # Use the git rev hash of vcpkg in the cache key because things are not 
+        # entirely compatible between versions
+        key: vcpkg-cache-${{env.VCPKG_REV}}-${{github.sha}}-${{github.run_attempt}}
+        restore-keys: |
+          vcpkg-cache-${{env.VCPKG_REV}}
+          vcpkg-cache
+        enableCrossOsArchive: true
+
+      # If cache was restored from a different VCPKG_REV, try to clear the download cache of stale files
+      # do this by Setting the LastAccessTime to Jan 1 2000 before building and then after building before saving
+      # the cache, delete any files that were not acessed by the build and didn't have their access time changed
+    - name: Init Clearing Stale Files Cache
+      if: ${{!contains( steps.vcpkg-cache-restore.outputs.cache-matched-key, env.VCPKG_REV)}}
+      run: |
+          fsutil behavior set disablelastaccess 1
+          $longago = [DateTime]::Parse("2000-01-01") 
+          get-ChildItem $Env:VCPKGCACHE_PATH -filter *.* -File | ForEach-Object { $_.LastAccessTimeUTC = $longago; $_.Name }
+          # renable filesystem auto updating last access time 
+          fsutil behavior set disablelastaccess 0
+
+    - name: Install VCPKG packages for configurations (${{env.BUILD_CONFIGURATIONS}}) and platforms (${{env.BUILD_PLATFORMS}})
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        foreach($configuration  in $ENV:BUILD_CONFIGURATIONS.Split(" ",[System.StringSplitOptions]::RemoveEmptyEntries)){
+          foreach($platform  in $ENV:BUILD_PLATFORMS.Split(" ",[System.StringSplitOptions]::RemoveEmptyEntries)){
+            echo "`e[34m$platform $configuration`e[0m"
+            
+            msbuild /v:${{ runner.debug =='1' && 'detailed' || 'normal' }} /p:Configuration=$configuration /p:Platform=$platform ${{env.SOLUTION_FILE_PATH}} /t:${{env.TARGET_VCPKG_MANIFEST_INSTALL}}
+          }
+        }
+
+        # Hash the cache and delete any stale files. Only need to hash the filenames because they are a hash of the contents
+        fsutil behavior set disablelastaccess 1
+        chdir $Env:VCPKGCACHE_PATH     
+        $longago = [DateTime]::Parse("2000-01-01") 
+        [Uint128]$hash = 0
+        $oldhash = Get-Content hash -ErrorAction ignore
+        Remove-item hash -ErrorAction Ignore
+        get-ChildItem -Recurse . | ForEach-Object{
+            if ($_.LastAccessTimeUtc -eq $longago){
+                Remove-Item $_ -Force -Verbose
+            }
+            else {
+                $relativename = Resolve-Path $_.FullName -Relative
+                $stringAsStream = [System.IO.MemoryStream]::new()
+                $writer = [System.IO.StreamWriter]::new($stringAsStream)
+                $writer.Write($relativename)
+                $writer.Flush()
+                $stringAsStream.Position = 0                
+                $hash = $hash -bxor [UInt128]::Parse((Get-FileHash -InputStream $stringAsStream -Algorithm Md5).Hash,'HexNumber')
+            }
+        }
+        echo "old hash was $oldhash"            
+        echo "new hash is  $hash"
+        $hash|Out-File hash
+        if ($hash -ne $oldhash){ 
+          "VCPKG_CACHE_HASH=$hash"|Out-File -Append ${{ github.env }} 
+        }
+
+    - name: Save VCPKG cache
+      if: ${{env.VCPKG_CACHE_HASH !=''}}
+      id: vcpkg-cache-save
+      uses: actions/cache/save@v5
+      with:
+        path: ${{env.VCPKGCACHE_PATH}}
+        key: vcpkg-cache-${{env.VCPKG_REV}}-${{github.sha}}-${{github.run_attempt}}-${{env.VCPKG_CACHE_HASH}}
+        enableCrossOsArchive: true
+  
+    - name: Build Solution  for configurations (${{env.BUILD_CONFIGURATIONS}}) and platforms (${{env.BUILD_PLATFORMS}})
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        foreach($configuration  in $ENV:BUILD_CONFIGURATIONS.Split(" ",[System.StringSplitOptions]::RemoveEmptyEntries)){
+          foreach($platform  in $ENV:BUILD_PLATFORMS.Split(" ",[System.StringSplitOptions]::RemoveEmptyEntries)){
+            echo "`e[34m$platform $configuration`e[0m"
+            
+            msbuild /v:${{ runner.debug =='1' && 'detailed' || 'normal' }} /p:Configuration=$configuration /p:Platform=$platform ${{env.SOLUTION_FILE_PATH}} /t:Rebuild
+            msbuild /v:${{ runner.debug =='1' && 'detailed' || 'normal' }} /p:Configuration=$configuration /p:Platform=$platform ${{env.SOLUTION_FILE_PATH}} /t:clean
+          }
+        }
+      
+      
+      
+
